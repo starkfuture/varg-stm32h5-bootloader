@@ -1,0 +1,3 @@
+[submodule "sf_hal_stm32h5"]
+	path = sf_hal_stm32h5
+	url = git@github.com:starkfuture/sf_hal_stm32h5.git

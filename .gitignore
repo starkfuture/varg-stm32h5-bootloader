@@ -1,0 +1,24 @@
+# Compilación STM32CubeIDE
+/Debug/
+/Release/
+/Release_custom/
+
+# Archivos temporales de compilación
+*.o
+*.d
+*.su
+*.cyclo
+*.elf
+*.map
+*.list
+*.bin
+*.hex
+
+# Archivos intermedios de dependencias
+*.mk
+*.list
+*.suo
+*.db
+
+# Archivos del generador STM32CubeMX
+*.ioc~
