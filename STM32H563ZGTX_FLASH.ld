@@ -41,13 +41,33 @@ _estack = ORIGIN(RAM) + LENGTH(RAM); /* end of "RAM" Ram type memory */
 _Min_Heap_Size = 0x200; /* required amount of heap */
 _Min_Stack_Size = 0x400; /* required amount of stack */
 
+SECTOR_SIZE              = 0x2000;
+FLASH_MEM_SIZE           = 0x100000;
+BOOTLOADER_SIZE          = 0x00018000;
+FLASH_BASE             	 = 0x08000000;
+
+BOOTLOADER_START_ADDR   = FLASH_BASE + (FLASH_MEM_SIZE - BOOTLOADER_SIZE);    /* At the end of the memory */
+
+FREE_SPACE_START        = SECTOR_SIZE;        /* The begininning of the free space */
+FREE_SPACE_SIZE         = BOOTLOADER_START_ADDR - FREE_SPACE_START;   /* Size of the Free space */
+
+RAM_BASE           = 0x20000000;
+RAM_TOTAL_SIZE     = 0xA0000;      /* 640 KB */
+SHARED_RAM_SIZE    = 0x200;        /* 512 B */
+RAM_MAIN_SIZE      = RAM_TOTAL_SIZE - SHARED_RAM_SIZE;
+
+PROVIDE(__free_space_start = FREE_SPACE_START);
+PROVIDE(__free_space_size = FREE_SPACE_SIZE);
+PROVIDE(__sector_size = SECTOR_SIZE);
+
 /* Memories definition */
 MEMORY
 {
-  RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 640K
-  FLASH    (rx)    : ORIGIN = 0x08000000,   LENGTH = 1024K
+  ISR_VECTOR  (rx)   : ORIGIN = FLASH_BASE, LENGTH = 0x00000F00
+  RAM         (xrw)  : ORIGIN = RAM_BASE, LENGTH = RAM_MAIN_SIZE
+  SHARED_RAM  (xrw)  : ORIGIN = RAM_BASE + RAM_MAIN_SIZE, LENGTH = SHARED_RAM_SIZE
+  FLASH    (rx)    	: ORIGIN = BOOTLOADER_START_ADDR,   LENGTH = BOOTLOADER_SIZE
 }
-
 /* Sections */
 SECTIONS
 {
@@ -58,7 +78,7 @@ SECTIONS
     . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
-  } >FLASH
+  } >ISR_VECTOR
 
   /* The program code and other data into "FLASH" Rom type memory */
   .text :
@@ -175,6 +195,12 @@ SECTIONS
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
   } >RAM
+  
+    .shared_ram (NOLOAD) :
+  {
+    . = ALIGN(4);
+    KEEP(*(.shared_ram))
+  } >SHARED_RAM
 
   /* Remove information from the compiler libraries */
   /DISCARD/ :

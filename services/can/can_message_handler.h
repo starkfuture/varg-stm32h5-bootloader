@@ -108,6 +108,7 @@ typedef enum {
  * @param[in] can Pointer to the received CAN message frame.
  ****************************************************************************
  */
+void can_message_handler_init(void);
 void can_message_handler_process_frame(const can_message_rx_t *frame, uint8_t ecu_id);
 void can_message_handler_task(uint8_t ecu_id, uint8_t app_status, uint8_t boot_version);
 int can_message_handler_send_bootloader_message(data_comm_msg_type_t type, uint8_t id, const uint8_t* header, uint16_t header_size, const uint8_t* data, uint16_t data_size, void *context);

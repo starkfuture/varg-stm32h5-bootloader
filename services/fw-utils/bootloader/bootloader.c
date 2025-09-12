@@ -92,7 +92,7 @@ struct {
 
 const data_comm_rx_config_t data_comm_config={
     .max_full_retries = 3,
-    .max_retries_burst = 5,
+    .max_retries_burst = 20,
     .prepare_timeout = 0,
     .info_timeout = 1000,
     .packets_timeout = 1000,
@@ -207,7 +207,7 @@ static data_comm_rx_write_result_t data_comm_write_func(uint32_t address, const 
 
                 int result = bootloader.config->mem_write_func( bootloader.sections.upgrade.address + bootloader.fw_index, bootloader.config->btea_buffer, bootloader.config->btea_chunk_size);
                 if (result!=0) {
-                    return DATA_COMM_RX_WRITE_ERROR_ABORT;
+                    return DATA_COMM_RX_WRITE_ERROR_REPEAT_FROM_BEGGINING;
                 }
                 //Update the pointer of the firmware
                 bootloader.fw_index+=bootloader.config->btea_chunk_size;
@@ -377,7 +377,7 @@ void bootloader_init(const bootloader_config_t* bootloader_config, const bootloa
     data_comm_rx_settings_t data_comm_settings = {
         .config = &data_comm_config,
         .buffer = bootloader.rx_buffer,
-        .buffer_size = sizeof(bootloader.rx_buffer),
+        .buffer_size = 512,
         .id = bootloader.config->device_id,
         .crc_seed = 0xDEAD,
         .write_func = data_comm_write_func,

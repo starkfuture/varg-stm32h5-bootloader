@@ -15,27 +15,27 @@
 /* FLASH Memory Map -----------------------------------------------------------*/
 /* Application Information */
 #define MEM_APP_INFO_ADDRESS                0x08002000
+#define MEM_APP_INFO_END_ADDRESS            0x08004000
+
+/* Application Area */
 #define MEM_APP_START_ADDRESS               0x08004000
+#define MEM_APP_END_ADDRESS                 0x08074000
 
 /* Upgrade Information */
-#define MEM_UPGRADE_INFO_ADDRESS            0x08076000
-#define MEM_UPGRADE_START_ADDRESS           0x08078000
+#define MEM_UPGRADE_INFO_ADDRESS            0x08074000
+#define MEM_UPGRADE_INFO_END_ADDRESS        0x08076000
 
-/* Configuration Banks */
-#define MEM_CONFIGURATION_1_ADDRESS         0x080EA000
-#define MEM_CONFIGURATION_2_ADDRESS         0x080EC000
-
-/* End-of-Line Information */
-#define MEM_EOL_INFO_ADDRESS                0x080EE000
-
-/* Reserved Area */
-#define MEM_RESERVED_ADDRESS                0x080F0000
+/* Upgrade Area */
+#define MEM_UPGRADE_START_ADDRESS           0x08076000
+#define MEM_UPGRADE_END_ADDRESS             0x080E6000
 
 /* Bootloader Area */
-#define MEM_BOOTLOADER_ADDRESS              0x080F8000
+#define MEM_BOOTLOADER_ADDRESS              0x080E8000
+#define MEM_BOOTLOADER_END_ADDRESS          0x08100000
 
 /* End of FLASH Memory */
 #define MEM_FLASH_END_ADDRESS               0x08100000
+
 
 void mem_init( void );
 int mem_read( uint32_t address, void* data, uint32_t size);

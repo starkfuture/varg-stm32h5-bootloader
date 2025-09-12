@@ -22,6 +22,42 @@
 /* Forward declaration */
 static void can_message_handler_ECU_status_periodic(uint8_t ecu_id, uint8_t status, uint8_t boot_version);
 
+void can_message_handler_init(void) {
+    can_filter_message_t can_filter_message = {0};
+
+    can_general_filter_t can_general_filter = (can_general_filter_t){
+      .non_matching_std = SF_FDCAN_REJECT,
+      .non_matching_ext = SF_FDCAN_REJECT,
+      .reject_remote_std = 	SF_FDCAN_REJECT_REMOTE,
+      .reject_remote_ext = 	SF_FDCAN_REJECT_REMOTE,
+  };
+  can_activate_notification_t can_activate_notification = (can_activate_notification_t){
+      .rx_fifo0_interrupts = SF_FDCAN_IT_RX_FIFO0_NEW_MESSAGE,
+  };
+
+//   Configure the low-level filtering on the CAN peripheral
+  can_filter_message = (can_filter_message_t){
+      .identifier_type = SF_FDCAN_EXTENDED_ID,
+      .filter_index = 0,
+      .filter_type = SF_FDCAN_FILTER_RANGE,
+      .filter_config = SF_FDCAN_FILTER_TO_RXFIFO0,
+      .filter_id1 = CAN_MSG_RECV_REQUEST_RUN_MODE_ID,
+      .filter_id2 = CAN_MSG_RECV_DATABURST_COMPLETE_MESSAGE_ID,
+  };
+
+//   Configure CAN ID filtering
+  sf_can_configure_filters(FDCAN_PERIPHERAL, can_filter_message);
+
+  // Configure general CAN ID filtering (non-specified messages)
+  sf_can_configure_general_filter(FDCAN_PERIPHERAL, can_general_filter);
+
+  // Activate RX FIFO0 new message notification
+  sf_can_activate_notification(FDCAN_PERIPHERAL, can_activate_notification);
+
+  // Start CAN peripheral
+  sf_can_start(FDCAN_PERIPHERAL);
+}
+
 /*!
  ****************************************************************************
  * @brief Processes an incoming CAN message frame.
@@ -115,9 +151,11 @@ static void can_message_handler_ECU_status_periodic(uint8_t ecu_id, uint8_t app_
 void can_message_handler_task(uint8_t ecu_id, uint8_t app_status, uint8_t boot_version)
 {
     can_message_rx_t new_msg;
+    uint8_t can_msg_rcv_data[MAX_DATA_LENGTH];
+    new_msg.data = &can_msg_rcv_data[0];
 
     /* Get lastest message received */
-    if(sf_can_get_last_rx_filtered_message(&new_msg) == CAN_STATUS_OK) {
+    while(sf_can_get_last_rx_filtered_message(&new_msg) == CAN_STATUS_OK) {
         can_message_handler_process_frame(&new_msg, ecu_id);
     }
 
@@ -125,78 +163,78 @@ void can_message_handler_task(uint8_t ecu_id, uint8_t app_status, uint8_t boot_v
 }
 
 
-int can_message_handler_send_bootloader_message(data_comm_msg_type_t type, uint8_t id, const uint8_t* header, uint16_t header_size, const uint8_t* data, uint16_t data_size, void *context)
-{
-	/* Suppress unused parameters */
-    (void)context;
-    (void)data_size;
-    (void)data;
-
-    can_message_tx_t frame = {0};
-    frame.identifier_type = SF_FDCAN_EXTENDED_ID;
-
-    /* Set ECU ID as the first byte of data */
-    frame.data[CAN_MSG_ECU_CODE_BYTE_INDEX] = id;
-
-    switch (type)
-    {
-        case DATA_COMM_MSG_TYPE_READY_REPORT:
-        {
-            frame.identifier = CAN_MSG_SEND_READY_REPORT_ID;
-            frame.data_length = CAN_MSG_ECU_CODE_SIZE + header_size;
-            if (header_size > (CAN_MSG_MAX_LENGTH - CAN_MSG_ECU_CODE_SIZE)) {
-                return -2;
-            }
-
-            memcpy(&frame.data[1], header, header_size);
-            break;
-        }
-
-        case DATA_COMM_MSG_TYPE_BURST_REQUEST:
-        {
-            frame.identifier = CAN_MSG_SEND_BURST_REQUEST_ID;
-            frame.data_length = CAN_MSG_ECU_CODE_SIZE + header_size;
-
-            if (header_size > (CAN_MSG_MAX_LENGTH - CAN_MSG_ECU_CODE_SIZE)) {
-                return -2;
-            }
-
-            memcpy(&frame.data[1], header, header_size);
-            break;
-        }
-
-        case DATA_COMM_MSG_TYPE_COMPLETION:
-        {
-            frame.identifier = CAN_MSG_SEND_COMPLETION_MESSAGE_ID;
-            frame.data_length = CAN_MSG_ECU_CODE_SIZE;
-            break;
-        }
-
-        case DATA_COMM_MSG_TYPE_FINISH_REPORT:
-        {
-            frame.identifier = CAN_MSG_SEND_FINISH_REPORT_ID;
-            frame.data_length = CAN_MSG_ECU_CODE_SIZE + header_size;
-
-            if (header_size > (CAN_MSG_MAX_LENGTH - CAN_MSG_ECU_CODE_SIZE)) {
-                return -2;
-            }
-
-            memcpy(&frame.data[1], header, header_size);
-            break;
-        }
-
-        default:
-        {
-            return -1;  /* Unknown message type */
-        }
-    }
-
-    /* Send the frame */
-    can_status_t ret = sf_can_send_message(FDCAN_PERIPHERAL, frame);
-
-    return (ret == CAN_STATUS_OK) ? 0 : -1;
-
-}
+//int can_message_handler_send_bootloader_message(data_comm_msg_type_t type, uint8_t id, const uint8_t* header, uint16_t header_size, const uint8_t* data, uint16_t data_size, void *context)
+//{
+//	/* Suppress unused parameters */
+//    (void)context;
+//    (void)data_size;
+//    (void)data;
+//
+//    can_message_tx_t frame = {0};
+//    frame.identifier_type = SF_FDCAN_EXTENDED_ID;
+//
+//    /* Set ECU ID as the first byte of data */
+//    frame.data[CAN_MSG_ECU_CODE_BYTE_INDEX] = id;
+//
+//    switch (type)
+//    {
+//        case DATA_COMM_MSG_TYPE_READY_REPORT:
+//        {
+//            frame.identifier = CAN_MSG_SEND_READY_REPORT_ID;
+//            frame.data_length = CAN_MSG_ECU_CODE_SIZE + header_size;
+//            if (header_size > (CAN_MSG_MAX_LENGTH - CAN_MSG_ECU_CODE_SIZE)) {
+//                return -2;
+//            }
+//
+//            memcpy(&frame.data[1], header, header_size);
+//            break;
+//        }
+//
+//        case DATA_COMM_MSG_TYPE_BURST_REQUEST:
+//        {
+//            frame.identifier = CAN_MSG_SEND_BURST_REQUEST_ID;
+//            frame.data_length = CAN_MSG_ECU_CODE_SIZE + header_size;
+//
+//            if (header_size > (CAN_MSG_MAX_LENGTH - CAN_MSG_ECU_CODE_SIZE)) {
+//                return -2;
+//            }
+//
+//            memcpy(&frame.data[1], header, header_size);
+//            break;
+//        }
+//
+//        case DATA_COMM_MSG_TYPE_COMPLETION:
+//        {
+//            frame.identifier = CAN_MSG_SEND_COMPLETION_MESSAGE_ID;
+//            frame.data_length = CAN_MSG_ECU_CODE_SIZE;
+//            break;
+//        }
+//
+//        case DATA_COMM_MSG_TYPE_FINISH_REPORT:
+//        {
+//            frame.identifier = CAN_MSG_SEND_FINISH_REPORT_ID;
+//            frame.data_length = CAN_MSG_ECU_CODE_SIZE + header_size;
+//
+//            if (header_size > (CAN_MSG_MAX_LENGTH - CAN_MSG_ECU_CODE_SIZE)) {
+//                return -2;
+//            }
+//
+//            memcpy(&frame.data[1], header, header_size);
+//            break;
+//        }
+//
+//        default:
+//        {
+//            return -1;  /* Unknown message type */
+//        }
+//    }
+//
+//    /* Send the frame */
+//    can_status_t ret = sf_can_send_message(FDCAN_PERIPHERAL, frame);
+//
+//    return (ret == CAN_STATUS_OK) ? 0 : -1;
+//
+//}
 
 
 

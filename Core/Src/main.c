@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "crc.h"
 #include "dac.h"
 #include "fdcan.h"
 #include "gpdma.h"
@@ -31,13 +32,13 @@
 /* USER CODE BEGIN Includes */
 #include "sf_can_hal.h"
 #include "bootloader.h"
-// #include "common.h"
 #include "sf_bootloader_hal.h"
 #include "sf_flash_hal.h"
 #include "sf_crc_hal.h"
 #include "mem.h"
 #include "can_message_handler.h"
 #include "sf_timer_hal.h"
+#include "sf_charger_led_hal.h"
 
 /* USER CODE END Includes */
 
@@ -53,7 +54,7 @@
 
 #define BOARD STARK_CHARGER
 
-#define BOOTLOADER_BTEA_BUFFER_SIZE         1024U
+#define BOOTLOADER_BTEA_BUFFER_SIZE         8192U
 
 #ifndef HW_VERSION
 //#error "HW_VERSION needs to be defined"
@@ -100,6 +101,8 @@ const btea_key_t btea_key = {
 #error "BOARD needs to be defined"
 #endif
 
+#define BOOTLOADER_LED_TIME_TOGGLE		1000
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -133,6 +136,8 @@ const bootloader_config_t bootloader_config = {
     .max_copy_retries = 3,
     .jump_delay = 200,
 };
+
+static uint32_t led_timer = 0;
 
 __attribute__((section(".shared_ram"), used)) volatile uint32_t shared_variable;
 
@@ -207,6 +212,7 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM14_Init();
   MX_TIM17_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
 
   hardware_info.magic_number = 0xACABACAB;
@@ -223,13 +229,15 @@ int main(void)
   bool stay_in_bootloader = false;
 
   mem_init();
+
+  can_message_handler_init();
   sf_bootloader_hal_init();
 
   const bootloader_sections_t bootloader_sections = {
-		  .app_info = {.address = MEM_APP_INFO_ADDRESS, .size = MEM_APP_START_ADDRESS - MEM_APP_INFO_ADDRESS },
-		  .app = {.address = MEM_APP_START_ADDRESS, .size = MEM_UPGRADE_INFO_ADDRESS - MEM_APP_START_ADDRESS },
-		  .upgrade_info = {.address = MEM_UPGRADE_INFO_ADDRESS, .size = MEM_UPGRADE_START_ADDRESS - MEM_UPGRADE_INFO_ADDRESS },
-		  .upgrade = {.address = MEM_UPGRADE_START_ADDRESS, .size = MEM_CONFIGURATION_1_ADDRESS - MEM_UPGRADE_START_ADDRESS },
+		  .app_info = {.address = MEM_APP_INFO_ADDRESS, .size = MEM_APP_INFO_END_ADDRESS - MEM_APP_INFO_ADDRESS },
+		  .app = {.address = MEM_APP_START_ADDRESS, .size = MEM_APP_END_ADDRESS - MEM_APP_START_ADDRESS },
+		  .upgrade_info = {.address = MEM_UPGRADE_INFO_ADDRESS, .size = MEM_UPGRADE_INFO_END_ADDRESS - MEM_UPGRADE_INFO_ADDRESS },
+		  .upgrade = {.address = MEM_UPGRADE_START_ADDRESS, .size = MEM_UPGRADE_END_ADDRESS - MEM_UPGRADE_START_ADDRESS },
   };
 
   bootloader_init(&bootloader_config, &bootloader_sections);
@@ -247,19 +255,36 @@ int main(void)
 	  uint8_t app_status = bootloader_app_status();
 
 	  can_message_handler_task(BOOTLOADER_ECU_CODE_ID, app_status, BOOTLOADER_VERSION);
-	  bootloader_tick(get_1ms_counter());
+	  uint32_t time = get_1ms_counter();
+	  bootloader_tick(time);
 
-	  /* USER CODE END WHILE */
 
-	  /* USER CODE BEGIN 3 */
+	  if( (time - led_timer) >= BOOTLOADER_LED_TIME_TOGGLE)
+	  {
+		  led_timer = get_1ms_counter();
+
+		  if( gpio_get( LED1 ) == 0 ) {
+			  gpio_set( LED1 );
+			  gpio_clear( LED2 );
+		  }
+		  else
+		  {
+			  gpio_clear( LED1 );
+			  gpio_set( LED2 );
+		  }
+	  }
+
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
