@@ -196,7 +196,7 @@ SECTIONS
     . = ALIGN(8);
   } >RAM
   
-    .shared_ram (NOLOAD) :
+  .shared_ram (NOLOAD) :
   {
     . = ALIGN(4);
     KEEP(*(.shared_ram))

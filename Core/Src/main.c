@@ -54,7 +54,7 @@
 
 #define BOARD STARK_CHARGER
 
-#define BOOTLOADER_BTEA_BUFFER_SIZE         8192U
+#define BOOTLOADER_BTEA_BUFFER_SIZE         0x2000U
 
 #ifndef HW_VERSION
 //#error "HW_VERSION needs to be defined"
