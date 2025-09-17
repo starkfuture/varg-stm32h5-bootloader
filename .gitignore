@@ -22,3 +22,5 @@
 
 # Archivos del generador STM32CubeMX
 *.ioc~
+/Debug/
+/Release/
