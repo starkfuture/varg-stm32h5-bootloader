@@ -22,8 +22,8 @@
 #include "crc.h"
 #include "dac.h"
 #include "fdcan.h"
+#include "flash.h"
 #include "gpdma.h"
-#include "icache.h"
 #include "spi.h"
 #include "tim.h"
 #include "gpio.h"
@@ -200,7 +200,6 @@ int main(void)
   MX_ADC2_Init();
   MX_DAC1_Init();
   MX_FDCAN1_Init();
-  MX_ICACHE_Init();
   MX_TIM1_Init();
   MX_TIM3_Init();
   MX_TIM8_Init();
@@ -213,6 +212,7 @@ int main(void)
   MX_TIM14_Init();
   MX_TIM17_Init();
   MX_CRC_Init();
+  MX_FLASH_Init();
   /* USER CODE BEGIN 2 */
 
   hardware_info.magic_number = 0xACABACAB;
