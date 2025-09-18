@@ -196,55 +196,59 @@ void data_comm_rx_tick(data_comm_rx_t* self, uint32_t time_ms) {
 
             break;
         }
-        case DATA_COMM_RX_STATE_SEND_BURST_REQ_AND_WAIT_BURST_CRC: {
-            //Wait for the delay
-            if (check_delay(self,config->request_delay)) {
-                //Delay expired
-                if (!check_count(self,config->request_count)) {
-                    //Count hasn't reached max, send the message
-                    //While sending, reset the timeout
-                    self->timeout_timer=time_ms;
+	case DATA_COMM_RX_STATE_SEND_BURST_REQ_AND_WAIT_BURST_CRC: {
+		//Wait for the delay
+		if (check_delay(self, config->request_delay)) {
+			//Delay expired
+			if (!check_count(self, config->request_count)) {
+				//Count hasn't reached max, send the message
+				//While sending, reset the timeout
+				self->timeout_timer = time_ms;
 
-                    //Calculate the requested burst_size
-                    //Try to request the rest of the size
-                    self->requested_burst_size= self->total_size - self->burst_sequence;
-                    //But if it's too big:
-                    if (self->requested_burst_size>self->max_burst_size) {
-                        //Just request the max_burst_size calculated on the INFO reception
-                        self->requested_burst_size = self->max_burst_size;
-                    }
-                    //Send the message
-                    data_comm_burst_request_t msg_burst_request = {
-                        .burst_size = self->requested_burst_size
-                    };
-                    buffer_append_uint24_little(self->burst_sequence, msg_burst_request.sequence);
-                    LOG_I("[%d] %s : %d. Sending Burst Req 0x%08x, %d",
-                        self->now, __FUNCTION__, self->state, self->burst_sequence, self->requested_burst_size);
+				//Calculate the requested burst_size
+				//Try to request the rest of the size
+				uint32_t remaining = self->total_size - self->burst_sequence;
+				//But if it's too big:
+				if (remaining > self->max_burst_size) {
+					//Just request the max_burst_size calculated on the INFO reception
+					self->requested_burst_size = self->max_burst_size;
+				} else {
+					self->requested_burst_size = remaining;
+				}
+				//Send the message
+				data_comm_burst_request_t msg_burst_request = { .burst_size =
+						self->requested_burst_size };
+				buffer_append_uint24_little(self->burst_sequence,
+						msg_burst_request.sequence);
+				LOG_I("[%d] %s : %d. Sending Burst Req 0x%08x, %d",
+						self->now, __FUNCTION__, self->state, self->burst_sequence, self->requested_burst_size);
 
-                    int result = settings->send_func(DATA_COMM_MSG_TYPE_BURST_REQUEST,settings->id,
-                            (const uint8_t*) &msg_burst_request,sizeof(msg_burst_request),NULL,0,settings->context);
-                    if (result!=0) {
-                        //There was an error sending, abort
-                        self->status=DATA_COMM_ERROR_COMM_ERROR;
-                        set_state(self,DATA_COMM_RX_STATE_PROCESS);
-                        break;
-                    }
-                    break;
-                }
-            }
-            //If after sending the burst request, there's no response
-            if (check_timeout(self,config->packets_timeout)) {
-                //Timet out
-                //Timet out, try to retry
-                if (!retry_burst(self,self->burst_sequence)) {
-                    //No more retries, abort
+				int result = settings->send_func(
+						DATA_COMM_MSG_TYPE_BURST_REQUEST, settings->id,
+						(const uint8_t*) &msg_burst_request,
+						sizeof(msg_burst_request), NULL, 0, settings->context);
+				if (result != 0) {
+					//There was an error sending, abort
+					self->status = DATA_COMM_ERROR_COMM_ERROR;
+					set_state(self, DATA_COMM_RX_STATE_PROCESS);
+					break;
+				}
+				break;
+			}
+		}
+		//If after sending the burst request, there's no response
+		if (check_timeout(self, config->packets_timeout)) {
+			//Timet out
+			//Timet out, try to retry
+			if (!retry_burst(self, self->burst_sequence)) {
+				//No more retries, abort
 
-                    self->status = DATA_COMM_STATUS_REQUEST_TIMEOUT;
-                    set_state(self,DATA_COMM_RX_STATE_PROCESS);
-                }
-            }
-            break;
-        }
+				self->status = DATA_COMM_STATUS_REQUEST_TIMEOUT;
+				set_state(self, DATA_COMM_RX_STATE_PROCESS);
+			}
+		}
+		break;
+	}
         case DATA_COMM_RX_STATE_WAIT_BURST_DATA: {
             //Here we just wait for messages
             if (check_timeout(self,config->packets_timeout)) {
@@ -725,10 +729,20 @@ int data_comm_rx_init(data_comm_rx_t* self, const data_comm_rx_settings_t* setti
     if (settings->finish_func==NULL || settings->write_func==NULL || settings->send_func==NULL) {
         return -6;
     }
-    memcpy(&self->settings,settings,sizeof(data_comm_rx_settings_t));
-    if (settings->log_func==NULL) {
-        self->settings.log_func=dummy_comm_log_func;
+    if (settings->finish_func==NULL || settings->write_func==NULL || settings->send_func==NULL) {
+        return -6;
     }
+
+    memcpy(&self->settings,settings,sizeof(data_comm_rx_settings_t));
+
+    if (self->settings.buffer_size > UINT16_MAX) {
+    	self->settings.buffer_size = UINT16_MAX;
+    }
+
+    if (settings->log_func==NULL) {
+    	self->settings.log_func=dummy_comm_log_func;
+    }
+
     LOG_D("%s Init",__FUNCTION__);
     self->state=DATA_COMM_RX_STATE_IDLE;
     self->started=false;
