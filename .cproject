@@ -94,7 +94,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
-						<entry excluding="fw-utils/bootloader/fw_verification/utils.c|fw-utils/bootloader/fw_verification/keygen.c|fw-utils/bootloader/fw_verification/fwfile.c|fw-utils/bootloader/fw_verification/fw_verification_test.c|fw-utils/tinycrypt/tests" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="services"/>
+						<entry excluding="fw-utils/error|fw-utils/bootloader/fw_verification/utils.c|fw-utils/bootloader/fw_verification/keygen.c|fw-utils/bootloader/fw_verification/fwfile.c|fw-utils/bootloader/fw_verification/fw_verification_test.c|fw-utils/tinycrypt/tests" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="services"/>
 						<entry excluding="common_hw_config.c|adc_hal|capture_hal|dac_hal|i2c_hal|pwm_hal|spi_hal|uart_hal" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="sf_hal_stm32h5"/>
 					</sourceEntries>
 				</configuration>
@@ -172,7 +172,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
-						<entry excluding="fw-utils/bootloader/fw_verification/utils.c|fw-utils/bootloader/fw_verification/keygen.c|fw-utils/bootloader/fw_verification/fwfile.c|fw-utils/bootloader/fw_verification/fw_verification_test.c|fw-utils/tinycrypt/tests" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="services"/>
+						<entry excluding="fw-utils/error|fw-utils/bootloader/fw_verification/utils.c|fw-utils/bootloader/fw_verification/keygen.c|fw-utils/bootloader/fw_verification/fwfile.c|fw-utils/bootloader/fw_verification/fw_verification_test.c|fw-utils/tinycrypt/tests" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="services"/>
 						<entry excluding="common_hw_config.c|adc_hal|capture_hal|dac_hal|i2c_hal|pwm_hal|spi_hal|uart_hal" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="sf_hal_stm32h5"/>
 					</sourceEntries>
 				</configuration>
@@ -272,7 +272,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
-						<entry excluding="fw-utils/bootloader/fw_verification/utils.c|fw-utils/bootloader/fw_verification/keygen.c|fw-utils/bootloader/fw_verification/fwfile.c|fw-utils/bootloader/fw_verification/fw_verification_test.c|fw-utils/tinycrypt/tests" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="services"/>
+						<entry excluding="fw-utils/error|fw-utils/bootloader/fw_verification/utils.c|fw-utils/bootloader/fw_verification/keygen.c|fw-utils/bootloader/fw_verification/fwfile.c|fw-utils/bootloader/fw_verification/fw_verification_test.c|fw-utils/tinycrypt/tests" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="services"/>
 						<entry excluding="common_hw_config.c|adc_hal|capture_hal|dac_hal|i2c_hal|pwm_hal|spi_hal|uart_hal" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="sf_hal_stm32h5"/>
 					</sourceEntries>
 				</configuration>
