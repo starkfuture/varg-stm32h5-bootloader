@@ -1,3 +1,0 @@
-[submodule "tinycrypt"]
-	path = tinycrypt
-	url = git@github.com:intel/tinycrypt.git
