@@ -108,7 +108,7 @@ void can_message_handler_process_frame(const can_message_rx_t *frame, uint8_t ec
                 type = DATA_COMM_MSG_TYPE_BURST_COMPLETION;
             }
 
-            bootloader_rx_message_received((uint32_t) get_1ms_counter(), type, ecu_id, relevant_data_pointer, size);
+            bootloader_rx_message_received((uint32_t) sf_bootloader_hal_get_1ms_counter(), type, ecu_id, relevant_data_pointer, size);
             break;
         }
 
@@ -120,7 +120,7 @@ void can_message_handler_process_frame(const can_message_rx_t *frame, uint8_t ec
 static void can_message_handler_ECU_status_periodic(uint8_t ecu_id, uint8_t app_status, uint8_t boot_version)
 {
     static uint32_t last_send_ms = 0U;
-    uint32_t now = get_1ms_counter();
+    uint32_t now = sf_bootloader_hal_get_1ms_counter();
 
     if ((now - last_send_ms) >= CAN_MSG_SEND_ECU_STATUS_PERIOD_MS)
     {
