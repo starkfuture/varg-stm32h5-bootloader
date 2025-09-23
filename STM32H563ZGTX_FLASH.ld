@@ -41,9 +41,9 @@ _estack = ORIGIN(RAM) + LENGTH(RAM); /* end of "RAM" Ram type memory */
 _Min_Heap_Size = 0x200; /* required amount of heap */
 _Min_Stack_Size = 0x400; /* required amount of stack */
 
-SECTOR_SIZE              = 0x2000;
-FLASH_MEM_SIZE           = 0x100000;
-BOOTLOADER_SIZE          = 0x00018000;
+SECTOR_SIZE              = 0x2000;		/* 8 kB */
+FLASH_MEM_SIZE           = 0x100000;	/* 1 MB */
+BOOTLOADER_SIZE          = 0x00008000; 	/* 32 kB */
 FLASH_BASE             	 = 0x08000000;
 
 BOOTLOADER_START_ADDR   = FLASH_BASE + (FLASH_MEM_SIZE - BOOTLOADER_SIZE);    /* At the end of the memory */
