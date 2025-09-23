@@ -19,18 +19,34 @@
 
 /* Application Area */
 #define MEM_APP_START_ADDRESS               0x08004000
-#define MEM_APP_END_ADDRESS                 0x08074000
+#define MEM_APP_END_ADDRESS                 0x08076000
 
 /* Upgrade Information */
-#define MEM_UPGRADE_INFO_ADDRESS            0x08074000
-#define MEM_UPGRADE_INFO_END_ADDRESS        0x08076000
+#define MEM_UPGRADE_INFO_ADDRESS            0x08076000
+#define MEM_UPGRADE_INFO_END_ADDRESS        0x08078000
 
 /* Upgrade Area */
-#define MEM_UPGRADE_START_ADDRESS           0x08076000
-#define MEM_UPGRADE_END_ADDRESS             0x080E6000
+#define MEM_UPGRADE_START_ADDRESS           0x08078000
+#define MEM_UPGRADE_END_ADDRESS             0x080EA000
+
+/* Configuration 1 Area */
+#define MEM_CONFIG_1_START_ADDRESS          0x080EA000
+#define MEM_CONFIG_1_END_ADDRESS            0x080EC000
+
+/* Configuration 2 Area */
+#define MEM_CONFIG_2_START_ADDRESS          0x080EC000
+#define MEM_CONFIG_2_END_ADDRESS            0x080EE000
+
+/* EOL Information Area */
+#define MEM_EOL_INFO_START_ADDRESS          0x080EE000
+#define MEM_EOL_INFO_END_ADDRESS            0x080F0000
+
+/* Reserved Area */
+#define MEM_RESERVED_START_ADDRESS          0x080F0000
+#define MEM_RESERVED_END_ADDRESS          	0x080F8000
 
 /* Bootloader Area */
-#define MEM_BOOTLOADER_ADDRESS              0x080E8000
+#define MEM_BOOTLOADER_START_ADDRESS        0x080F8000
 #define MEM_BOOTLOADER_END_ADDRESS          0x08100000
 
 /* End of FLASH Memory */
