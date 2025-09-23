@@ -55,7 +55,7 @@
 #define HW_VERSION 0
 #endif
 
-#define BOOTLOADER_VERSION                  0x04
+#define BOOTLOADER_VERSION                  0x01
 
 #if BOARD == STARK_CHARGER
 
